@@ -90,9 +90,9 @@ public class PathDocumentation extends Documentation {
         StationResponse gangnam = new StationResponse(2L, "강남역", now(), now());
         StationResponse yangjae = new StationResponse(3L, "양재역", now(), now());
         List<StationResponse> stations = Arrays.asList(gyodae, gangnam, yangjae);
-        int duration = 3;
-        int distance = 4;
-        int fare = 1250;
+        int duration = 4;
+        int distance = 3;
+        int fare = 2250;
 
         PathResponse pathResponse = new PathResponse(stations, duration, distance, fare);
         when(mapService.findPath(any(), any(), any())).thenReturn(pathResponse);
@@ -121,6 +121,47 @@ public class PathDocumentation extends Documentation {
                     fieldWithPath("distance").type(JsonFieldType.NUMBER)
                         .description("최소 시간 - 소요 시간"),
                     fieldWithPath("fare").type(JsonFieldType.NUMBER).description("최단 거리 - 금액")))).
+            extract();
+    }
+
+    @DisplayName("두 역의 빠른 도착 경로를 조회한다.")
+    @Test
+    void findPathByArrival() {
+        StationResponse gyodae = new StationResponse(1L, "교대역", now(), now());
+        StationResponse gangnam = new StationResponse(2L, "강남역", now(), now());
+        StationResponse yangjae = new StationResponse(3L, "양재역", now(), now());
+        List<StationResponse> stations = Arrays.asList(gyodae, gangnam, yangjae);
+        int duration = 3;
+        int distance = 4;
+        int fare = 1250;
+
+        PathResponse pathResponse = new PathResponse(stations, duration, distance, fare);
+        when(mapService.findPath(any(), any(), any())).thenReturn(pathResponse);
+
+        given().log().all().
+            header("Authorization", "Bearer " + tokenResponse.getAccessToken()).
+            accept(MediaType.APPLICATION_JSON_VALUE).
+            when().
+            get("/paths?source={sourceId}&target={targetId}&type={type}", 1, 2, "ARRIVAL").
+            then().
+            log().all().
+            apply(document("paths/arrival",
+                getDocumentRequest(),
+                getDocumentResponse(),
+                requestHeaders(
+                    headerWithName("Authorization").description("Bearer auth credentials")),
+                responseFields(
+                    fieldWithPath("stations[]").type(JsonFieldType.ARRAY)
+                        .description("빠른 도착 - 경로(역)"),
+                    fieldWithPath("stations[].id").type(JsonFieldType.NUMBER)
+                        .description("빠른 도착 - 경로(역) ID"),
+                    fieldWithPath("stations[].name").type(JsonFieldType.STRING)
+                        .description("빠른 도착 - 경로(역) 이름"),
+                    fieldWithPath("duration").type(JsonFieldType.NUMBER)
+                        .description("빠른 도착 - 소요 거리"),
+                    fieldWithPath("distance").type(JsonFieldType.NUMBER)
+                        .description("빠른 도착 - 소요 시간"),
+                    fieldWithPath("fare").type(JsonFieldType.NUMBER).description("빠른 도착 - 금액")))).
             extract();
     }
 }

@@ -5,7 +5,8 @@ import wooteco.subway.maps.line.domain.LineStation;
 
 public enum PathType {
     DISTANCE(LineStation::getDistance),
-    DURATION(LineStation::getDuration);
+    DURATION(LineStation::getDuration),
+    ARRIVAL(LineStation -> 0);
 
     private Function<LineStation, Integer> expression;
 

@@ -40,3 +40,9 @@ operation::paths/distance[snippets='curl-request,http-request,http-response,requ
 === 최소 시간 경로 조회
 
 operation::paths/duration[snippets='curl-request,http-request,http-response,request-headers,request-body,response-body,response-fields']
+
+[[resources-paths-arrival]]
+=== 가장 빠른 도착 경로 조회
+
+operation::paths/arrival[snippets='curl-request,http-request,http-response,request-headers,request-body,response-body,response-fields']
+
