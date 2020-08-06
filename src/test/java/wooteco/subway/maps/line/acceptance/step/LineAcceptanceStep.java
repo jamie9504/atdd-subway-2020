@@ -1,37 +1,40 @@
 package wooteco.subway.maps.line.acceptance.step;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import wooteco.subway.maps.line.dto.LineResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import wooteco.subway.maps.line.dto.LineResponse;
 
 public class LineAcceptanceStep {
-    public static ExtractableResponse<Response> 지하철_노선_등록되어_있음(String name, String color) {
-        return 지하철_노선_생성_요청(name, color);
+
+    public static ExtractableResponse<Response> 지하철_노선_등록되어_있음(String name, String color,
+        int extraFare) {
+        return 지하철_노선_생성_요청(name, color, extraFare);
     }
 
-    public static ExtractableResponse<Response> 지하철_노선_생성_요청(String name, String color) {
+    public static ExtractableResponse<Response> 지하철_노선_생성_요청(String name, String color,
+        int extraFare) {
         Map<String, String> params = new HashMap<>();
         params.put("name", name);
         params.put("color", color);
-        params.put("startTime", LocalTime.of(05, 30).format(DateTimeFormatter.ISO_TIME));
+        params.put("startTime", LocalTime.of(5, 30).format(DateTimeFormatter.ISO_TIME));
         params.put("endTime", LocalTime.of(23, 30).format(DateTimeFormatter.ISO_TIME));
         params.put("intervalTime", "5");
+        params.put("extraFare", String.valueOf(extraFare));
 
         return RestAssured.given().log().all().
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                body(params).
+            contentType(MediaType.APPLICATION_JSON_VALUE).
+            body(params).
                 when().
                 post("/lines").
                 then().
@@ -63,23 +66,25 @@ public class LineAcceptanceStep {
 
     public static ExtractableResponse<Response> 지하철_노선_조회_요청(Long lineId) {
         return RestAssured.given().log().all().
-                accept(MediaType.APPLICATION_JSON_VALUE).
-                when().
-                get("/lines/{lineId}", lineId).
-                then().
-                log().all().
-                extract();
+            accept(MediaType.APPLICATION_JSON_VALUE).
+            when().
+            get("/lines/{lineId}", lineId).
+            then().
+            log().all().
+            extract();
     }
 
-    public static ExtractableResponse<Response> 지하철_노선_수정_요청(ExtractableResponse<Response> response, String name, String color) {
+    public static ExtractableResponse<Response> 지하철_노선_수정_요청(ExtractableResponse<Response> response,
+        String name, String color, int extraFare) {
         String uri = response.header("Location");
 
         Map<String, String> params = new HashMap<>();
         params.put("name", name);
         params.put("color", color);
-        params.put("startTime", LocalTime.of(05, 30).format(DateTimeFormatter.ISO_TIME));
+        params.put("startTime", LocalTime.of(5, 30).format(DateTimeFormatter.ISO_TIME));
         params.put("endTime", LocalTime.of(23, 30).format(DateTimeFormatter.ISO_TIME));
         params.put("intervalTime", "5");
+        params.put("extraFare", String.valueOf(extraFare));
 
         return RestAssured.given().log().all().
                 contentType(MediaType.APPLICATION_JSON_VALUE).

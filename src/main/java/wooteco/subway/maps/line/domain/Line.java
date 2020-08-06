@@ -1,13 +1,18 @@
 package wooteco.subway.maps.line.domain;
 
-import wooteco.subway.common.domain.BaseEntity;
-
-import javax.persistence.*;
 import java.time.LocalTime;
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import wooteco.subway.common.domain.BaseEntity;
 
 @Entity
 public class Line extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,26 +22,33 @@ public class Line extends BaseEntity {
     private LocalTime startTime;
     private LocalTime endTime;
     private int intervalTime;
+
+    @Embedded
+    private Fare extraFare;
+
     @Embedded
     private LineStations lineStations = new LineStations();
 
     public Line() {
     }
 
-    public Line(String name, String color, LocalTime startTime, LocalTime endTime, int intervalTime) {
+    public Line(String name, String color, LocalTime startTime, LocalTime endTime, int intervalTime,
+        int extraFare) {
         this.name = name;
         this.color = color;
         this.startTime = startTime;
         this.endTime = endTime;
         this.intervalTime = intervalTime;
+        this.extraFare = new Fare(extraFare);
     }
 
     public void update(Line line) {
-        this.name = line.getName();
-        this.startTime = line.getStartTime();
-        this.endTime = line.getEndTime();
-        this.intervalTime = line.getIntervalTime();
-        this.color = line.getColor();
+        this.name = line.name;
+        this.startTime = line.startTime;
+        this.endTime = line.endTime;
+        this.intervalTime = line.intervalTime;
+        this.color = line.color;
+        this.extraFare = line.extraFare;
     }
 
     public void addLineStation(LineStation lineStation) {
@@ -77,5 +89,9 @@ public class Line extends BaseEntity {
 
     public LineStations getLineStations() {
         return lineStations;
+    }
+
+    public int getExtraFare() {
+        return extraFare.getExtraFare();
     }
 }

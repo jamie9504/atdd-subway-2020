@@ -31,6 +31,3 @@
    - 최단 거리 경로 조회 문서화
    - 최소 시간 경로 조회 문서화
 3. TDD로 개발
-   - Controller : Acceptance Test - 1에서 진행
-   - Service : Service Test
-

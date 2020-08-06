@@ -1,21 +1,20 @@
 package wooteco.subway.maps.line.acceptance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import wooteco.subway.common.acceptance.AcceptanceTest;
-import wooteco.subway.maps.line.dto.LineResponse;
-import wooteco.subway.maps.station.dto.StationResponse;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import wooteco.subway.common.acceptance.AcceptanceTest;
 import wooteco.subway.maps.line.acceptance.step.LineAcceptanceStep;
 import wooteco.subway.maps.line.acceptance.step.LineStationAcceptanceStep;
+import wooteco.subway.maps.line.dto.LineResponse;
 import wooteco.subway.maps.station.acceptance.step.StationAcceptanceStep;
-
-import static wooteco.subway.maps.line.acceptance.step.LineAcceptanceStep.지하철_노선_조회_요청;
-import static org.assertj.core.api.Assertions.assertThat;
+import wooteco.subway.maps.station.dto.StationResponse;
 
 @DisplayName("지하철 노선에 역 등록 관련 기능")
 public class LineStationAddAcceptanceTest extends AcceptanceTest {
@@ -29,10 +28,14 @@ public class LineStationAddAcceptanceTest extends AcceptanceTest {
         super.setUp();
 
         // given
-        ExtractableResponse<Response> createLineResponse = LineAcceptanceStep.지하철_노선_등록되어_있음("2호선", "GREEN");
-        ExtractableResponse<Response> createdStationResponse1 = StationAcceptanceStep.지하철역_등록되어_있음("강남역");
-        ExtractableResponse<Response> createdStationResponse2 = StationAcceptanceStep.지하철역_등록되어_있음("역삼역");
-        ExtractableResponse<Response> createdStationResponse3 = StationAcceptanceStep.지하철역_등록되어_있음("선릉역");
+        ExtractableResponse<Response> createLineResponse = LineAcceptanceStep
+            .지하철_노선_등록되어_있음("2호선", "GREEN", 0);
+        ExtractableResponse<Response> createdStationResponse1 = StationAcceptanceStep
+            .지하철역_등록되어_있음("강남역");
+        ExtractableResponse<Response> createdStationResponse2 = StationAcceptanceStep
+            .지하철역_등록되어_있음("역삼역");
+        ExtractableResponse<Response> createdStationResponse3 = StationAcceptanceStep
+            .지하철역_등록되어_있음("선릉역");
 
         lineId = createLineResponse.as(LineResponse.class).getId();
         stationId1 = createdStationResponse1.as(StationResponse.class).getId();
