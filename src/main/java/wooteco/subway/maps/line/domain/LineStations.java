@@ -1,12 +1,17 @@
 package wooteco.subway.maps.line.domain;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.CascadeType;
+import javax.persistence.Embeddable;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 
 @Embeddable
 public class LineStations {
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "line_id", foreignKey = @ForeignKey(name = "fk_line_station_to_line"))
     private List<LineStation> lineStations = new ArrayList<>();
@@ -18,16 +23,16 @@ public class LineStations {
     public List<LineStation> getStationsInOrder() {
         // 출발지점 찾기
         Optional<LineStation> preLineStation = lineStations.stream()
-                .filter(it -> it.getPreStationId() == null)
-                .findFirst();
+            .filter(it -> it.getPreStationId() == null)
+            .findFirst();
 
         List<LineStation> result = new ArrayList<>();
         while (preLineStation.isPresent()) {
             LineStation preStationId = preLineStation.get();
             result.add(preStationId);
             preLineStation = lineStations.stream()
-                    .filter(it -> it.getPreStationId() == preStationId.getStationId())
-                    .findFirst();
+                .filter(it -> it.getPreStationId() == preStationId.getStationId())
+                .findFirst();
         }
         return result;
     }
@@ -36,9 +41,9 @@ public class LineStations {
         checkValidation(lineStation);
 
         lineStations.stream()
-                .filter(it -> it.getPreStationId() == lineStation.getPreStationId())
-                .findFirst()
-                .ifPresent(it -> it.updatePreStationTo(lineStation.getStationId()));
+            .filter(it -> it.getPreStationId() == lineStation.getPreStationId())
+            .findFirst()
+            .ifPresent(it -> it.updatePreStationTo(lineStation.getStationId()));
 
         lineStations.add(lineStation);
     }
@@ -55,15 +60,23 @@ public class LineStations {
 
     public void removeByStationId(Long stationId) {
         LineStation lineStation = lineStations.stream()
-                .filter(it -> it.getStationId() == stationId)
-                .findFirst()
-                .orElseThrow(RuntimeException::new);
+            .filter(it -> it.getStationId() == stationId)
+            .findFirst()
+            .orElseThrow(RuntimeException::new);
 
         lineStations.stream()
-                .filter(it -> it.getPreStationId() == stationId)
-                .findFirst()
-                .ifPresent(it -> it.updatePreStationTo(lineStation.getPreStationId()));
+            .filter(it -> it.getPreStationId() == stationId)
+            .findFirst()
+            .ifPresent(it -> it.updatePreStationTo(lineStation.getPreStationId()));
 
         lineStations.remove(lineStation);
+    }
+
+    public boolean isForward(LineStation startLineStation, LineStation endLineStation) {
+        List<LineStation> stationsInOrder = getStationsInOrder();
+        int startLineStationIndex = stationsInOrder.indexOf(startLineStation);
+        int endLineStationIndex = stationsInOrder.indexOf(endLineStation);
+
+        return startLineStationIndex < endLineStationIndex;
     }
 }
