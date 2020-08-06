@@ -1,6 +1,22 @@
 package wooteco.subway.maps.map.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import wooteco.subway.common.TestObjectUtils;
 import wooteco.subway.maps.line.application.LineService;
 import wooteco.subway.maps.line.domain.Line;
 import wooteco.subway.maps.line.domain.LineStation;
@@ -11,23 +27,10 @@ import wooteco.subway.maps.map.dto.MapResponse;
 import wooteco.subway.maps.map.dto.PathResponse;
 import wooteco.subway.maps.station.application.StationService;
 import wooteco.subway.maps.station.domain.Station;
-import wooteco.subway.common.TestObjectUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MapServiceTest {
+
     private MapService mapService;
     @Mock
     private LineService lineService;
@@ -68,14 +71,15 @@ public class MapServiceTest {
         lines = Lists.newArrayList(line1, line2, line3);
 
         List<LineStationEdge> lineStations = Lists.newArrayList(
-                new LineStationEdge(lineStation6, line3.getId()),
-                new LineStationEdge(lineStation7, line3.getId())
+            new LineStationEdge(lineStation6, line3.getId()),
+            new LineStationEdge(lineStation7, line3.getId())
         );
         subwayPath = new SubwayPath(lineStations);
 
         mapService = new MapService(lineService, stationService, pathService);
     }
 
+    @DisplayName("경로 조회")
     @Test
     void findPath() {
         when(lineService.findLines()).thenReturn(lines);
@@ -87,6 +91,7 @@ public class MapServiceTest {
         assertThat(pathResponse.getStations()).isNotEmpty();
         assertThat(pathResponse.getDuration()).isNotZero();
         assertThat(pathResponse.getDistance()).isNotZero();
+        assertThat(pathResponse.getFare()).isNotZero();
     }
 
     @Test
@@ -97,6 +102,5 @@ public class MapServiceTest {
         MapResponse mapResponse = mapService.findMap();
 
         assertThat(mapResponse.getLineResponses()).hasSize(3);
-
     }
 }

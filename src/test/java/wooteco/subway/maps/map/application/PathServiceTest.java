@@ -1,20 +1,19 @@
 package wooteco.subway.maps.map.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import wooteco.subway.common.TestObjectUtils;
 import wooteco.subway.maps.line.domain.Line;
 import wooteco.subway.maps.line.domain.LineStation;
 import wooteco.subway.maps.map.domain.PathType;
 import wooteco.subway.maps.map.domain.SubwayPath;
 import wooteco.subway.maps.station.domain.Station;
-import wooteco.subway.common.TestObjectUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PathServiceTest {
     private List<Line> lines;
@@ -56,7 +55,6 @@ public class PathServiceTest {
         assertThat(subwayPath.extractStationId().get(0)).isEqualTo(1L);
         assertThat(subwayPath.extractStationId().get(1)).isEqualTo(4L);
         assertThat(subwayPath.extractStationId().get(2)).isEqualTo(3L);
-
     }
 
     @Test
