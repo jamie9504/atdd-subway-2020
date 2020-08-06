@@ -19,6 +19,7 @@ import wooteco.subway.maps.station.dto.StationResponse;
 
 @DisplayName("지하철 경로 조회")
 public class PathAcceptanceTest extends AcceptanceTest {
+
     private Long 교대역;
     private Long 강남역;
     private Long 양재역;
@@ -28,10 +29,7 @@ public class PathAcceptanceTest extends AcceptanceTest {
     private Long 삼호선;
 
     /**
-     * 교대역    --- *2호선* ---   강남역
-     * |                        |
-     * *3호선*                   *신분당선*
-     * |                        |
+     * 교대역    --- *2호선* ---   강남역 |                        | *3호선*                   *신분당선* | |
      * 남부터미널역  --- *3호선* ---   양재
      */
     @BeforeEach
@@ -78,7 +76,7 @@ public class PathAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 거리_경로_조회_요청("DURATION", 1L, 3L);
         //then
         적절한_경로를_응답(response, Lists.newArrayList(교대역, 강남역, 양재역));
-        총_거리와_소요_시간과_요금을_함께_응답함(response, 4, 3, 1250);
+        총_거리와_소요_시간과_요금을_함께_응답함(response, 4, 3, 2250);
     }
 
     private Long 지하철_노선_등록되어_있음(String name, String color, int extraFare) {

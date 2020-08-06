@@ -1,7 +1,6 @@
 package wooteco.subway.maps.map.domain;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,13 +15,20 @@ public class SubwayPath {
         return lineStationEdges;
     }
 
-    public List<Long> extractStationId() {
-        List<Long> stationIds = Lists.newArrayList(lineStationEdges.get(0).getLineStation().getPreStationId());
+    public List<Long> extractStationIds() {
+        List<Long> stationIds = Lists
+            .newArrayList(lineStationEdges.get(0).getLineStation().getPreStationId());
         stationIds.addAll(lineStationEdges.stream()
-                .map(it -> it.getLineStation().getStationId())
-                .collect(Collectors.toList()));
+            .map(it -> it.getLineStation().getStationId())
+            .collect(Collectors.toList()));
 
         return stationIds;
+    }
+
+    public List<Long> extractLineIds() {
+        return lineStationEdges.stream()
+            .map(LineStationEdge::getLineId)
+            .collect(Collectors.toList());
     }
 
     public int calculateDuration() {

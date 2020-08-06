@@ -53,7 +53,7 @@ public class PathDocumentation extends Documentation {
         int distance = 4;
         int fare = 1250;
 
-        PathResponse pathResponse = new PathResponse(stations, duration, distance);
+        PathResponse pathResponse = new PathResponse(stations, duration, distance, fare);
         when(mapService.findPath(any(), any(), any())).thenReturn(pathResponse);
 
         given().log().all().
@@ -94,7 +94,7 @@ public class PathDocumentation extends Documentation {
         int distance = 4;
         int fare = 1250;
 
-        PathResponse pathResponse = new PathResponse(stations, duration, distance);
+        PathResponse pathResponse = new PathResponse(stations, duration, distance, fare);
         when(mapService.findPath(any(), any(), any())).thenReturn(pathResponse);
 
         given().log().all().

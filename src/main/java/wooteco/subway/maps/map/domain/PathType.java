@@ -1,13 +1,11 @@
 package wooteco.subway.maps.map.domain;
 
+import java.util.function.Function;
 import wooteco.subway.maps.line.domain.LineStation;
 
-import java.util.function.Function;
-
 public enum PathType {
-    DISTANCE(lineStation -> lineStation.getDistance()),
-
-    DURATION(lineStation -> lineStation.getDuration());
+    DISTANCE(LineStation::getDistance),
+    DURATION(LineStation::getDuration);
 
     private Function<LineStation, Integer> expression;
 

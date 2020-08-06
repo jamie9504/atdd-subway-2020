@@ -51,10 +51,10 @@ public class PathServiceTest {
         SubwayPath subwayPath = pathService.findPath(lines, 1L, 3L, PathType.DISTANCE);
 
         // then
-        assertThat(subwayPath.extractStationId().size()).isEqualTo(3);
-        assertThat(subwayPath.extractStationId().get(0)).isEqualTo(1L);
-        assertThat(subwayPath.extractStationId().get(1)).isEqualTo(4L);
-        assertThat(subwayPath.extractStationId().get(2)).isEqualTo(3L);
+        assertThat(subwayPath.extractStationIds().size()).isEqualTo(3);
+        assertThat(subwayPath.extractStationIds().get(0)).isEqualTo(1L);
+        assertThat(subwayPath.extractStationIds().get(1)).isEqualTo(4L);
+        assertThat(subwayPath.extractStationIds().get(2)).isEqualTo(3L);
     }
 
     @Test
@@ -63,9 +63,9 @@ public class PathServiceTest {
         SubwayPath subwayPath = pathService.findPath(lines, 1L, 3L, PathType.DURATION);
 
         // then
-        assertThat(subwayPath.extractStationId().size()).isEqualTo(3);
-        assertThat(subwayPath.extractStationId().get(0)).isEqualTo(1L);
-        assertThat(subwayPath.extractStationId().get(1)).isEqualTo(2L);
-        assertThat(subwayPath.extractStationId().get(2)).isEqualTo(3L);
+        assertThat(subwayPath.extractStationIds().size()).isEqualTo(3);
+        assertThat(subwayPath.extractStationIds().get(0)).isEqualTo(1L);
+        assertThat(subwayPath.extractStationIds().get(1)).isEqualTo(2L);
+        assertThat(subwayPath.extractStationIds().get(2)).isEqualTo(3L);
     }
 }

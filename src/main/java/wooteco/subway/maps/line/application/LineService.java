@@ -1,5 +1,10 @@
 package wooteco.subway.maps.line.application;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wooteco.subway.maps.line.domain.Line;
 import wooteco.subway.maps.line.domain.LineRepository;
 import wooteco.subway.maps.line.domain.LineStation;
@@ -9,12 +14,6 @@ import wooteco.subway.maps.line.dto.LineStationResponse;
 import wooteco.subway.maps.station.application.StationService;
 import wooteco.subway.maps.station.domain.Station;
 import wooteco.subway.maps.station.dto.StationResponse;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,6 +32,10 @@ public class LineService {
 
     public List<Line> findLines() {
         return lineRepository.findAll();
+    }
+
+    public List<Line> findLines(List<Long> ids) {
+        return lineRepository.findAllById(ids);
     }
 
     public Line findLineById(Long id) {
