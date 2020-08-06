@@ -2,6 +2,7 @@ package wooteco.subway.maps.line.application;
 
 import wooteco.subway.maps.line.domain.Line;
 import wooteco.subway.maps.line.domain.LineRepository;
+import wooteco.subway.maps.line.domain.LineStation;
 import wooteco.subway.maps.line.dto.LineRequest;
 import wooteco.subway.maps.line.dto.LineResponse;
 import wooteco.subway.maps.line.dto.LineStationResponse;
@@ -30,12 +31,10 @@ public class LineService {
         return lineRepository.save(request.toLine());
     }
 
-    @Transactional(readOnly = true)
     public List<Line> findLines() {
         return lineRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Line findLineById(Long id) {
         return lineRepository.findById(id).orElseThrow(RuntimeException::new);
     }
@@ -49,21 +48,19 @@ public class LineService {
         lineRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     public List<LineResponse> findLineResponses() {
         List<Line> lines = findLines();
 
         return lines.stream()
-                .map(line -> LineResponse.of(line))
-                .collect(Collectors.toList());
+            .map(LineResponse::of)
+            .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public LineResponse findLineResponsesById(Long id) {
         Line line = lineRepository.findById(id).orElseThrow(RuntimeException::new);
         List<Long> stationIds = line.getStationInOrder().stream()
-                .map(it -> it.getStationId())
-                .collect(Collectors.toList());
+            .map(LineStation::getStationId)
+            .collect(Collectors.toList());
 
         Map<Long, Station> stations = stationService.findStationsByIds(stationIds);
 
@@ -74,7 +71,7 @@ public class LineService {
 
     private List<LineStationResponse> extractLineStationResponses(Line line, Map<Long, Station> stations) {
         return line.getStationInOrder().stream()
-                .map(it -> LineStationResponse.of(line.getId(), it, StationResponse.of(stations.get(it.getStationId()))))
-                .collect(Collectors.toList());
+            .map(it -> LineStationResponse.of(line.getId(), it, StationResponse.of(stations.get(it.getStationId()))))
+            .collect(Collectors.toList());
     }
 }

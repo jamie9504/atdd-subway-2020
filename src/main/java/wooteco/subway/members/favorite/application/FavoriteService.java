@@ -1,5 +1,6 @@
 package wooteco.subway.members.favorite.application;
 
+import org.springframework.transaction.annotation.Transactional;
 import wooteco.subway.maps.station.application.StationService;
 import wooteco.subway.maps.station.domain.Station;
 import wooteco.subway.maps.station.dto.StationResponse;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class FavoriteService {
     private FavoriteRepository favoriteRepository;
     private StationService stationService;
@@ -35,11 +37,11 @@ public class FavoriteService {
         Map<Long, Station> stations = extractStations(favorites);
 
         return favorites.stream()
-                .map(it -> FavoriteResponse.of(
-                        it,
-                        StationResponse.of(stations.get(it.getSourceStationId())),
-                        StationResponse.of(stations.get(it.getTargetStationId()))))
-                .collect(Collectors.toList());
+            .map(it -> FavoriteResponse.of(
+                it,
+                StationResponse.of(stations.get(it.getSourceStationId())),
+                StationResponse.of(stations.get(it.getTargetStationId()))))
+            .collect(Collectors.toList());
     }
 
     public void deleteFavorite(LoginMember loginMember, Long id) {
