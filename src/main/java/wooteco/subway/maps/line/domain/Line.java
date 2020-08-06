@@ -1,6 +1,8 @@
 package wooteco.subway.maps.line.domain;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -57,6 +59,80 @@ public class Line extends BaseEntity {
 
     public void removeLineStationById(Long stationId) {
         lineStations.removeByStationId(stationId);
+    }
+
+    int calculatorWaitMinuteFirstStation(LocalTime foundTime, LineStation firstStation,
+        LineStation nextStation) {
+        int currentMinute = calculatorCurrentMinuteFirstStation(firstStation, nextStation);
+        LocalTime startPointStartTime = foundTime.minusMinutes(currentMinute);
+        if (startPointStartTime.isAfter(endTime)) {
+            return calculatorAfterEndTrainAtPoint(currentMinute, foundTime);
+        }
+        return calculatorBeforeEndTrainAtPoint(currentMinute, foundTime);
+    }
+
+    int calculatorBeforeEndTrainAtPoint(int currentMinute, LocalTime foundTime) {
+        LocalTime startTimeAtPoint = foundTime.minusMinutes(currentMinute);
+        List<LocalTime> startTrainTimes = new ArrayList<>();
+
+        LocalTime temp = LocalTime.of(startTime.getHour(), startTime.getMinute());
+
+        while (!temp.isBefore(startTime) && !temp.isAfter(endTime)) {
+            startTrainTimes.add(temp);
+            temp = temp.plusMinutes(intervalTime);
+        }
+
+        LocalTime realStartTime = startTrainTimes.stream()
+            .filter(startTrainTime -> !startTrainTime.isBefore(startTimeAtPoint))
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new);
+
+        System.out.println(realStartTime);
+
+        return realStartTime.minusMinutes(startTimeAtPoint.getMinute()).getMinute();
+    }
+
+    int calculatorAfterEndTrainAtPoint(int currentMinute, LocalTime foundTime) {
+        LocalTime startTimeAtPoint = startTime.plusMinutes(currentMinute);
+        int startMinutesAtPoint = calculateTimeToMinute(startTimeAtPoint);
+        return startMinutesAtPoint + (24 * 60) - calculateTimeToMinute(foundTime);
+    }
+
+    private int calculateTimeToMinute(LocalTime localTime) {
+        return (localTime.getHour() * 60) + localTime.getMinute();
+    }
+
+    int calculatorCurrentMinuteFirstStation(LineStation firstStation, LineStation nextStation) {
+        boolean forward = lineStations.isForward(firstStation, nextStation);
+        if (forward) {
+            return calculatorCurrentMinuteStartStationToPointStation(firstStation);
+        }
+        return calculatorCurrentMinuteEndStationToPointStation(firstStation);
+    }
+
+    int calculatorCurrentMinuteStartStationToPointStation(LineStation pointStation) {
+        int currentMinute = 0;
+        List<LineStation> stationsInOrder = lineStations.getStationsInOrder();
+        for (LineStation lineStation : stationsInOrder) {
+            currentMinute += lineStation.getDuration();
+            if (lineStation.equals(pointStation)) {
+                break;
+            }
+        }
+        return currentMinute;
+    }
+
+    public int calculatorCurrentMinuteEndStationToPointStation(LineStation pointStation) {
+        int currentMinute = 0;
+        List<LineStation> stationsInOrder = lineStations.getStationsInOrder();
+        Collections.reverse(stationsInOrder);
+        for (LineStation lineStation : stationsInOrder) {
+            if (lineStation.equals(pointStation)) {
+                break;
+            }
+            currentMinute += lineStation.getDuration();
+        }
+        return currentMinute;
     }
 
     public List<LineStation> getStationInOrder() {

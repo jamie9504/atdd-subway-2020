@@ -57,9 +57,91 @@ ex) 14:00에 A역에서 D역으로 이동할 때 A-B-D와 A-C-D 경로가 존재
 - 첫차 시간은 첫 역과 마지막 역에서 하루 중 처음 지하철이 출발하는 시간을 의미
 - 막차 시간은 첫 역과 마지막 역에서 하루 중 마지막으로 지하철이 출발하는 시간을 의미
 
-#### 가장 빠른 도착 경로 조회 시
 
-출발역과 도착역의 모든 경로를 조회한 후 각 경로의 도착 시간을 계산하여 가장 빠른 시간의 경로를 찾아야 합니다.
-이 때, 모든 경로 조회는 KShortestPath를 활용할 수 있으며 Jgrapht의 라이브러리를 활용할 수 있습니다.
-Jgrapht의 KShortestPaths 활용 방법은 [JgraphTest](https://github.com/woowacourse/atdd-subway-2020/blob/master/src/test/java/wooteco/study/jgraph/JgraphTest.java#L35) 를 참고 하세요.
+
+``` java
+package wooteco.subway.maps.line.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.CascadeType;
+import javax.persistence.Embeddable;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+
+@Embeddable
+public class LineStations {
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "line_id", foreignKey = @ForeignKey(name = "fk_line_station_to_line"))
+    private List<LineStation> lineStations = new ArrayList<>();
+
+    public List<LineStation> getLineStations() {
+        return lineStations;
+    }
+
+    public List<LineStation> getStationsInOrder() {
+        // 출발지점 찾기
+        Optional<LineStation> preLineStation = lineStations.stream()
+            .filter(it -> it.getPreStationId() == null)
+            .findFirst();
+
+        List<LineStation> result = new ArrayList<>();
+        while (preLineStation.isPresent()) {
+            LineStation preStationId = preLineStation.get();
+            result.add(preStationId);
+            preLineStation = lineStations.stream()
+                .filter(it -> it.getPreStationId().equals(preStationId.getStationId()))
+                .findFirst();
+        }
+        return result;
+    }
+
+    public boolean isForward(LineStation startLineStation, LineStation endLineStation) {
+        List<LineStation> stationsInOrder = getStationsInOrder();
+        int startLineStationIndex = stationsInOrder.indexOf(startLineStation);
+        int endLineStationIndex = stationsInOrder.indexOf(endLineStation);
+
+        return startLineStationIndex < endLineStationIndex;
+    }
+
+    public void add(LineStation lineStation) {
+        checkValidation(lineStation);
+
+        lineStations.stream()
+            .filter(it -> it.getPreStationId().equals(lineStation.getPreStationId()))
+            .findFirst()
+            .ifPresent(it -> it.updatePreStationTo(lineStation.getStationId()));
+
+        lineStations.add(lineStation);
+    }
+
+    private void checkValidation(LineStation lineStation) {
+        if (lineStation.getStationId() == null) {
+            throw new RuntimeException();
+        }
+
+        if (lineStations.stream().anyMatch(it -> it.isSame(lineStation))) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void removeByStationId(Long stationId) {
+        LineStation lineStation = lineStations.stream()
+            .filter(it -> it.getStationId().equals(stationId))
+            .findFirst()
+            .orElseThrow(RuntimeException::new);
+
+        lineStations.stream()
+            .filter(it -> it.getPreStationId().equals(stationId))
+            .findFirst()
+            .ifPresent(it -> it.updatePreStationTo(lineStation.getPreStationId()));
+
+        lineStations.remove(lineStation);
+    }
+}
+
+```
 
