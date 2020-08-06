@@ -16,6 +16,7 @@ import wooteco.subway.maps.map.domain.SubwayPath;
 import wooteco.subway.maps.station.domain.Station;
 
 public class PathServiceTest {
+
     private List<Line> lines;
     private PathService pathService;
 

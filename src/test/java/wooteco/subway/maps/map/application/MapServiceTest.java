@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import wooteco.security.core.Authentication;
+import wooteco.security.core.context.SecurityContextHolder;
 import wooteco.subway.common.TestObjectUtils;
 import wooteco.subway.maps.line.application.LineService;
 import wooteco.subway.maps.line.domain.Line;
@@ -27,6 +29,7 @@ import wooteco.subway.maps.map.dto.MapResponse;
 import wooteco.subway.maps.map.dto.PathResponse;
 import wooteco.subway.maps.station.application.StationService;
 import wooteco.subway.maps.station.domain.Station;
+import wooteco.subway.members.member.domain.LoginMember;
 
 @ExtendWith(MockitoExtension.class)
 public class MapServiceTest {
@@ -81,7 +84,7 @@ public class MapServiceTest {
 
     @DisplayName("경로 조회")
     @Test
-    void findPath() {
+    void findPath_NoLogin() {
         when(lineService.findLines()).thenReturn(lines);
         when(pathService.findPath(anyList(), anyLong(), anyLong(), any())).thenReturn(subwayPath);
         when(stationService.findStationsByIds(anyList())).thenReturn(stations);
@@ -94,6 +97,32 @@ public class MapServiceTest {
         assertThat(pathResponse.getFare()).isNotZero();
     }
 
+    @DisplayName("경로 조회 - 로그인 유저에 따른 요금 비교")
+    @Test
+    void findPath_Login_getEachOtherDifferencePrice() {
+        initAuthentication();
+        when(lineService.findLines()).thenReturn(lines);
+        when(pathService.findPath(anyList(), anyLong(), anyLong(), any())).thenReturn(subwayPath);
+        when(stationService.findStationsByIds(anyList())).thenReturn(stations);
+
+        PathResponse pathResponse = mapService.findPath(1L, 3L, PathType.DISTANCE);
+        assertThat(pathResponse.getFare()).isEqualTo(1250);
+
+        setAuthentication(10);
+        pathResponse = mapService.findPath(1L, 3L, PathType.DISTANCE);
+        assertThat(pathResponse.getFare()).isEqualTo(450);
+
+        setAuthentication(15);
+        pathResponse = mapService.findPath(1L, 3L, PathType.DISTANCE);
+        assertThat(pathResponse.getFare()).isEqualTo(720);
+
+        setAuthentication(20);
+        pathResponse = mapService.findPath(1L, 3L, PathType.DISTANCE);
+        assertThat(pathResponse.getFare()).isEqualTo(1250);
+
+        initAuthentication();
+    }
+
     @Test
     void findMap() {
         when(lineService.findLines()).thenReturn(lines);
@@ -102,5 +131,14 @@ public class MapServiceTest {
         MapResponse mapResponse = mapService.findMap();
 
         assertThat(mapResponse.getLineResponses()).hasSize(3);
+    }
+
+    private void setAuthentication(int age) {
+        Authentication auth = new Authentication(new LoginMember(1L, "email.com", "password", age));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private void initAuthentication() {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

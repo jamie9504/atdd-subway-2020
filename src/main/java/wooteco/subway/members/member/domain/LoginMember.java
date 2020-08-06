@@ -4,6 +4,7 @@ package wooteco.subway.members.member.domain;
 import wooteco.security.core.userdetails.UserDetails;
 
 public class LoginMember implements UserDetails {
+
     private Long id;
     private String email;
     private String password;

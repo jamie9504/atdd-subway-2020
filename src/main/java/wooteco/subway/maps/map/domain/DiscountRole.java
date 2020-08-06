@@ -2,7 +2,6 @@ package wooteco.subway.maps.map.domain;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -22,17 +21,18 @@ public enum DiscountRole {
         this.discount = discount;
     }
 
-    public static DiscountRole from(Integer age) {
-        if (Objects.isNull(age)) {
-            return NORMAL;
-        }
+    public static DiscountRole from(int age) {
         return Arrays.stream(DiscountRole.values())
             .filter(discountRole -> discountRole.condition.test(age))
             .min(Comparator.comparingInt(discountRole -> discountRole.order))
             .orElseThrow(() -> new IllegalArgumentException("해당하는 DiscountRole이 없습니다."));
     }
 
-    public Double calculateDiscount(int price) {
+    public static DiscountRole defaultRole() {
+        return NORMAL;
+    }
+
+    public double calculateDiscount(int price) {
         return discount.apply(price);
     }
 }

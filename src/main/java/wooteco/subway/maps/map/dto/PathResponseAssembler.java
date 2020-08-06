@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import wooteco.subway.maps.line.domain.Line;
+import wooteco.subway.maps.map.domain.DiscountRole;
 import wooteco.subway.maps.map.domain.SubwayPath;
 import wooteco.subway.maps.station.domain.Station;
 import wooteco.subway.maps.station.dto.StationResponse;
@@ -19,21 +20,22 @@ public class PathResponseAssembler {
     protected static final int OVER_PARE_THIRD_UNIT = 8;
 
     public static PathResponse assemble(SubwayPath subwayPath, Map<Long, Station> stations,
-        List<Line> foundLines) {
+        List<Line> foundLines, DiscountRole discountRole) {
         List<StationResponse> stationResponses = subwayPath.extractStationIds().stream()
             .map(it -> StationResponse.of(stations.get(it)))
             .collect(Collectors.toList());
 
         int distance = subwayPath.calculateDistance();
-        int fare = calculateFare(distance, foundLines);
+        int fare = calculateFare(distance, foundLines, discountRole);
 
         return new PathResponse(stationResponses, subwayPath.calculateDuration(), distance, fare);
     }
 
-    private static int calculateFare(int distance, List<Line> lines) {
-        return DEFAULT_FARE
+    private static int calculateFare(int distance, List<Line> lines, DiscountRole discountRole) {
+        int fare = DEFAULT_FARE
             + calculateOverFare(distance)
             + calculateExtraFare(lines);
+        return (int) discountRole.calculateDiscount(fare);
     }
 
     static int calculateOverFare(int distance) {

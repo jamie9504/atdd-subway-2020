@@ -2,14 +2,18 @@ package wooteco.subway.maps.map.application;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wooteco.security.core.Authentication;
+import wooteco.security.core.context.SecurityContextHolder;
 import wooteco.subway.maps.line.application.LineService;
 import wooteco.subway.maps.line.domain.Line;
 import wooteco.subway.maps.line.domain.LineStation;
 import wooteco.subway.maps.line.dto.LineResponse;
 import wooteco.subway.maps.line.dto.LineStationResponse;
+import wooteco.subway.maps.map.domain.DiscountRole;
 import wooteco.subway.maps.map.domain.PathType;
 import wooteco.subway.maps.map.domain.SubwayPath;
 import wooteco.subway.maps.map.dto.MapResponse;
@@ -18,15 +22,18 @@ import wooteco.subway.maps.map.dto.PathResponseAssembler;
 import wooteco.subway.maps.station.application.StationService;
 import wooteco.subway.maps.station.domain.Station;
 import wooteco.subway.maps.station.dto.StationResponse;
+import wooteco.subway.members.member.domain.LoginMember;
 
 @Service
 @Transactional
 public class MapService {
+
     private LineService lineService;
     private StationService stationService;
     private PathService pathService;
 
-    public MapService(LineService lineService, StationService stationService, PathService pathService) {
+    public MapService(LineService lineService, StationService stationService,
+        PathService pathService) {
         this.lineService = lineService;
         this.stationService = stationService;
         this.pathService = pathService;
@@ -44,6 +51,9 @@ public class MapService {
     }
 
     public PathResponse findPath(Long source, Long target, PathType type) {
+
+        DiscountRole discountRole = getDiscountRole();
+
         List<Line> lines = lineService.findLines();
         SubwayPath subwayPath = pathService.findPath(lines, source, target, type);
 
@@ -51,7 +61,16 @@ public class MapService {
             .findStationsByIds(subwayPath.extractStationIds());
         List<Line> foundLines = lineService.findLines(subwayPath.extractLineIds());
 
-        return PathResponseAssembler.assemble(subwayPath, foundStations, foundLines);
+        return PathResponseAssembler.assemble(subwayPath, foundStations, foundLines, discountRole);
+    }
+
+    private DiscountRole getDiscountRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (Objects.isNull(authentication)) {
+            return DiscountRole.defaultRole();
+        }
+        Integer age = ((LoginMember) authentication.getPrincipal()).getAge();
+        return DiscountRole.from(age);
     }
 
     private Map<Long, Station> findStations(List<Line> lines) {
@@ -63,9 +82,11 @@ public class MapService {
         return stationService.findStationsByIds(stationIds);
     }
 
-    private List<LineStationResponse> extractLineStationResponses(Line line, Map<Long, Station> stations) {
+    private List<LineStationResponse> extractLineStationResponses(Line line,
+        Map<Long, Station> stations) {
         return line.getStationInOrder().stream()
-            .map(it -> LineStationResponse.of(line.getId(), it, StationResponse.of(stations.get(it.getStationId()))))
+            .map(it -> LineStationResponse
+                .of(line.getId(), it, StationResponse.of(stations.get(it.getStationId()))))
             .collect(Collectors.toList());
     }
 }
