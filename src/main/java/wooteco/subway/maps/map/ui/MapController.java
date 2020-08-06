@@ -23,25 +23,30 @@ public class MapController {
         this.mapService = mapService;
     }
 
+    @GetMapping("/paths/fast-arrival")
+    public ResponseEntity<PathResponse> findFastArrivalPath(@RequestParam Long source,
+        @RequestParam Long target, @RequestParam String departureTime) {
+        StationResponse gyodae = new StationResponse(1L, "교대역", now(), now());
+        StationResponse gangnam = new StationResponse(2L, "강남역", now(), now());
+        StationResponse yangjae = new StationResponse(3L, "양재역", now(), now());
+        List<StationResponse> stations = Arrays.asList(gyodae, gangnam, yangjae);
+        int duration = 3;
+        int distance = 4;
+        int fare = 1250;
+        PathResponse path = new PathResponse(stations, duration, distance, fare);
+        return ResponseEntity.ok(path);
+    }
+
     @GetMapping("/paths")
     public ResponseEntity<PathResponse> findPath(@RequestParam Long source,
         @RequestParam Long target, @RequestParam PathType type) {
-        if (type.equals(PathType.ARRIVAL)) {
-            StationResponse gyodae = new StationResponse(1L, "교대역", now(), now());
-            StationResponse gangnam = new StationResponse(2L, "강남역", now(), now());
-            StationResponse yangjae = new StationResponse(3L, "양재역", now(), now());
-            List<StationResponse> stations = Arrays.asList(gyodae, gangnam, yangjae);
-            int duration = 3;
-            int distance = 4;
-            int fare = 1250;
-            return ResponseEntity.ok(new PathResponse(stations, duration, distance, fare));
-        }
-        return ResponseEntity.ok(mapService.findPath(source, target, type));
+        PathResponse path = mapService.findPath(source, target, type);
+        return ResponseEntity.ok(path);
     }
 
     @GetMapping("/maps")
     public ResponseEntity<MapResponse> findMap() {
-        MapResponse response = mapService.findMap();
-        return ResponseEntity.ok(response);
+        MapResponse map = mapService.findMap();
+        return ResponseEntity.ok(map);
     }
 }

@@ -142,7 +142,8 @@ public class PathDocumentation extends Documentation {
             header("Authorization", "Bearer " + tokenResponse.getAccessToken()).
             accept(MediaType.APPLICATION_JSON_VALUE).
             when().
-            get("/paths?source={sourceId}&target={targetId}&type={type}", 1, 2, "ARRIVAL").
+            get("/paths/fast-arrival?source={sourceId}&target={targetId}&departureTime={departureTime}",
+                1, 2, "14:00").
             then().
             log().all().
             apply(document("paths/arrival",

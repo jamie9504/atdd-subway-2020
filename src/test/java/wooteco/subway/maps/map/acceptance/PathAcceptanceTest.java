@@ -1,6 +1,7 @@
 package wooteco.subway.maps.map.acceptance;
 
 import static wooteco.subway.maps.line.acceptance.step.LineStationAcceptanceStep.지하철_노선에_지하철역_등록되어_있음;
+import static wooteco.subway.maps.map.acceptance.step.PathAcceptanceStep.가장_빠른_도착_경로_조회_요청;
 import static wooteco.subway.maps.map.acceptance.step.PathAcceptanceStep.거리_경로_조회_요청;
 import static wooteco.subway.maps.map.acceptance.step.PathAcceptanceStep.적절한_경로를_응답;
 import static wooteco.subway.maps.map.acceptance.step.PathAcceptanceStep.총_거리와_소요_시간과_요금을_함께_응답함;
@@ -82,7 +83,7 @@ public class PathAcceptanceTest extends AcceptanceTest {
     @Test
     void findPathByArrival() {
         //when
-        ExtractableResponse<Response> response = 거리_경로_조회_요청("ARRIVAL", 1L, 3L);
+        ExtractableResponse<Response> response = 가장_빠른_도착_경로_조회_요청(1L, 3L, "14:00");
         //then
         적절한_경로를_응답(response, Lists.newArrayList(교대역, 강남역, 양재역));
         총_거리와_소요_시간과_요금을_함께_응답함(response, 4, 3, 1250);
