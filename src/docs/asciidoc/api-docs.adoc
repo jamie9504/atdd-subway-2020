@@ -30,3 +30,13 @@ operation::favorites/find-list[snippets='http-request,http-response,request-head
 === 즐겨찾기 제거
 
 operation::favorites/delete[snippets='http-request,http-response,request-headers']
+
+[[resources-paths-distance]]
+=== 최단 거리 경로 조회
+
+operation::paths/distance[snippets='curl-request,http-request,http-response,request-headers,request-body,response-body,response-fields']
+
+[[resources-paths-duration]]
+=== 최소 시간 경로 조회
+
+operation::paths/duration[snippets='curl-request,http-request,http-response,request-headers,request-body,response-body,response-fields']
